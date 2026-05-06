@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medication Reminder Prototype</title>
+    <meta name="description" content="A functional prototype of a medication management application.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Phosphor Icons for SVG UI Elements -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Toast Notification -->
+        <div id="toast-container" class="toast-container">
+            <div id="toast" class="toast">Welcome back!</div>
+        </div>
+
+        <!-- Error Modal -->
+        <div id="error-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <i class="ph-fill ph-warning-circle text-danger" style="font-size: 48px;"></i>
+                <h2 style="margin: 16px 0 8px;">Login Failed</h2>
+                <p id="error-modal-msg" style="color: var(--text-secondary); margin-bottom: 24px;">Invalid mobile number
+                    or password. Please sign up first.</p>
+                <div class="action-buttons">
+                    <button class="btn primary full-width"
+                        onclick="app.navigateTo('signup'); document.getElementById('error-modal').style.display='none';">Sign
+                        Up Now</button>
+                    <button class="btn outline secondary full-width"
+                        style="margin-top: 12px; border: 1px solid var(--border-color);"
+                        onclick="document.getElementById('error-modal').style.display='none';">Try Again</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN: Welcome -->
+        <section id="screen-welcome" class="screen active">
+            <div class="welcome-content">
+                <div class="welcome-logo">
+                    <i class="ph-fill ph-pill"></i>
+                </div>
+                <h1 class="welcome-title">Medication<br>Adherence</h1>
+                <p class="welcome-subtitle">Stay on track with your medications</p>
+
+                <div class="spacer-flex"></div>
+
+                <div class="action-buttons full-width">
+                    <button class="btn primary large" onclick="app.navigateTo('login')">Login</button>
+                    <button class="btn outline primary-outline large" onclick="app.navigateTo('signup')">Sign
+                        Up</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN: Login -->
+        <section id="screen-login" class="screen">
+            <div class="welcome-logo" style="text-align: center; margin-top: 60px;">
+                <i class="ph-fill ph-pill" style="font-size: 48px; color: var(--primary);"></i>
+            </div>
+            <h1 class="welcome-title"
+                style="text-align: center; margin-bottom: 32px; font-size: 28px; line-height: 1.2;">
+                Medication<br>Adherence</h1>
+
+            <div class="auth-content">
+                <form id="login-form" onsubmit="event.preventDefault(); app.handleLogin(event)">
+                    <div class="form-group">
+                        <label for="login-name">Name</label>
+                        <input type="text" id="login-name" class="form-input" placeholder="Enter your name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-mobile">Phone Number</label>
+                        <input type="tel" id="login-mobile" class="form-input" placeholder="Enter your phone number"
+                            inputmode="numeric">
+                        <span class="error-text" id="login-mobile-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <div class="input-icon-wrapper">
+                            <input type="password" id="login-password" class="form-input"
+                                placeholder="Enter your password">
+                            <i class="ph ph-eye-closed toggle-password"
+                                onclick="app.togglePassword('login-password')"></i>
+                        </div>
+                        <span class="error-text" id="login-password-error"></span>
+                    </div>
+
+                    <button type="submit" class="btn primary large" id="btn-login" style="margin-top: 16px;">
+                        <span class="btn-text">Login</span>
+                        <div class="spinner" style="display: none;"></div>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- SCREEN: Sign Up -->
+        <section id="screen-signup" class="screen">
+            <header class="nav-header">
+                <button class="icon-button" onclick="app.navigateTo('welcome')">
+                    <i class="ph ph-arrow-left"></i>
+                </button>
+                <h1>Create Account</h1>
+                <div class="flex-spacer"></div>
+            </header>
+
+            <div class="auth-content">
+                <p class="auth-desc">Join us with your mobile number and password.</p>
+
+                <form id="signup-form" onsubmit="event.preventDefault(); app.handleSignup(event)">
+                    <div class="form-group">
+                        <label for="signup-name">Full Name</label>
+                        <input type="text" id="signup-name" class="form-input" placeholder="Eleanor Rigby">
+                        <span class="error-text" id="signup-name-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-mobile">Mobile Number</label>
+                        <input type="tel" id="signup-mobile" class="form-input" placeholder="Enter your mobile number"
+                            inputmode="numeric">
+                        <span class="error-text" id="signup-mobile-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <div class="input-icon-wrapper">
+                            <input type="password" id="signup-password" class="form-input"
+                                placeholder="At least 6 characters">
+                            <i class="ph ph-eye-closed toggle-password"
+                                onclick="app.togglePassword('signup-password')"></i>
+                        </div>
+                        <span class="error-text" id="signup-password-error"></span>
+                    </div>
+
+                    <button type="submit" class="btn primary large" id="btn-signup">
+                        <span class="btn-text">Create Account</span>
+                        <div class="spinner" style="display: none;"></div>
+                    </button>
+                </form>
+
+                <div class="auth-alt bottom-link">
+                    <span>Already have an account?</span> <a href="#" onclick="app.navigateTo('login')">Login</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 1: Dashboard -->
+        <section id="screen-dashboard" class="screen">
+            <header class="app-header">
+                <div class="user-greeting">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=100&h=100"
+                        alt="Eleanor" class="avatar" id="avatar-img">
+                    <div class="greeting-text">
+                        <p class="subtitle">Good Morning,</p>
+                        <h1 class="title" id="dashboard-name">Eleanor <span class="emoji">☀️</span></h1>
+                    </div>
+                </div>
+                <button class="icon-button" aria-label="Notifications">
+                    <i class="ph ph-bell"></i>
+                    <span class="badge"></span>
+                </button>
+            </header>
+
+            <div class="main-content">
+                <div class="date-header">
+                    <h2>Today's<br>Medications</h2>
+                    <span class="date-pill">Oct 24<br><small>Tuesday</small></span>
+                </div>
+
+                <!-- Progress Card -->
+                <div class="progress-card">
+                    <div class="progress-info">
+                        <h3>Daily Progress</h3>
+                        <p>2 of 5 medications taken</p>
+                    </div>
+                    <div class="progress-chart">
+                        <svg viewBox="0 0 36 36" class="circular-chart green">
+                            <path class="circle-bg" d="M18 2.0845
+                                a 15.9155 15.9155 0 0 1 0 31.831
+                                a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="circle" stroke-dasharray="40, 100" d="M18 2.0845
+                                a 15.9155 15.9155 0 0 1 0 31.831
+                                a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <text x="18" y="20.35" class="percentage">40%</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Medication Timeline -->
+                <div class="timeline">
+                    <!-- Morning -->
+                    <div class="time-section" id="time-morning">
+                        <span id="dashboard-streak"></span>
+                        <div class="time-header">
+                            <i class="ph-fill ph-sun"></i>
+                            <h4>Morning</h4>
+                        </div>
+                        <div class="med-list">
+                            <!-- Taken Med -->
+                            <div class="med-card taken">
+                                <div class="med-time">08:00 AM</div>
+                                <div class="med-details">
+                                    <div class="med-name">Lisinopril</div>
+                                    <div class="med-desc">1 Tablet with water</div>
+                                </div>
+                                <div class="med-status">
+                                    <i class="ph-fill ph-check-circle"></i> Taken at 8:15 AM
+                                </div>
+                            </div>
+
+                            <!-- Pending Med -->
+                            <div class="med-card pending active-glow">
+                                <div class="med-time active">
+                                    <span class="dot"></span> 09:30 AM
+                                </div>
+                                <div class="med-details">
+                                    <div class="med-img-box">
+                                        <i class="ph-fill ph-pill"></i>
+                                    </div>
+                                    <div class="med-info-box">
+                                        <div class="med-name">Metformin</div>
+                                        <div class="med-desc">500mg • After breakfast</div>
+                                    </div>
+                                </div>
+                                <button class="btn primary full-width" onclick="app.navigateTo('alert')">
+                                    <i class="ph ph-check"></i> Take Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Afternoon -->
+                    <div class="time-section" id="time-afternoon">
+                        <div class="time-header">
+                            <i class="ph-fill ph-sun-horizon"></i>
+                            <h4>Afternoon</h4>
+                        </div>
+                        <div class="med-list">
+                            <div class="med-card upcoming">
+                                <div class="med-time">02:00 PM</div>
+                                <div class="med-details">
+                                    <div class="med-img-box muted">
+                                        <i class="ph-fill ph-pill"></i>
+                                    </div>
+                                    <div class="med-info-box">
+                                        <div class="med-name">Amlodipine</div>
+                                        <div class="med-desc">1 Capsule • With food</div>
+                                    </div>
+                                </div>
+                                <div class="med-status upcoming-badge">
+                                    <i class="ph ph-clock"></i> Upcoming
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Evening -->
+                    <div class="time-section" id="time-evening">
+                        <div class="time-header">
+                            <i class="ph-fill ph-moon"></i>
+                            <h4>Evening</h4>
+                        </div>
+                        <div class="med-list">
+                            <div class="med-card upcoming">
+                                <div class="med-time">08:00 PM</div>
+                                <div class="med-details">
+                                    <div class="med-img-box muted">
+                                        <i class="ph-fill ph-pill"></i>
+                                    </div>
+                                    <div class="med-info-box">
+                                        <div class="med-name">Atorvastatin</div>
+                                        <div class="med-desc">20mg • Before bed</div>
+                                    </div>
+                                </div>
+                                <div class="med-status upcoming-badge">
+                                    <i class="ph ph-clock"></i> Upcoming
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="spacer"></div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <nav class="bottom-nav">
+                <a href="#" class="nav-item active" onclick="app.navigateTo('dashboard')">
+                    <i class="ph ph-calendar-blank"></i>
+                    <span>Today</span>
+                </a>
+                <a href="#" class="nav-item" onclick="app.navigateTo('schedule')">
+                    <i class="ph ph-list-dashes"></i>
+                    <span>Schedule</span>
+                </a>
+                <div class="nav-fab-container">
+                    <button class="fab-button" onclick="app.navigateTo('add-med')">
+                        <i class="ph ph-plus"></i>
+                    </button>
+                </div>
+                <a href="#" class="nav-item" onclick="app.navigateTo('history')">
+                    <i class="ph ph-clock-counter-clockwise"></i>
+                    <span>History</span>
+                </a>
+                <a href="#" class="nav-item" onclick="app.navigateTo('profile')">
+                    <i class="ph ph-user"></i>
+                    <span>Profile</span>
+                </a>
+            </nav>
+        </section>
+
+        <!-- SCREEN: Schedule -->
+        <section id="screen-schedule" class="screen">
+            <header class="nav-header bordered">
+                <button class="icon-button" onclick="app.navigateTo('dashboard')">
+                    <i class="ph ph-arrow-left"></i>
+                </button>
+                <h1>My Schedule</h1>
+                <div class="flex-spacer"></div>
+            </header>
+
+            <div class="main-content">
+                <div class="schedule-container timeline" id="schedule-container" style="margin-top: 16px;">
+                    <!-- Render dynamic schedule list here -->
+                </div>
+            </div>
+
+            <!-- Bottom Navigation Duplicate for Schedule -->
+            <nav class="bottom-nav">
+                <a href="#" class="nav-item" onclick="app.navigateTo('dashboard')">
+                    <i class="ph ph-calendar-blank"></i>
+                    <span>Today</span>
+                </a>
+                <a href="#" class="nav-item active" onclick="app.navigateTo('schedule')">
+                    <i class="ph ph-list-dashes"></i>
+                    <span>Schedule</span>
+                </a>
+                <div class="nav-fab-container">
+                    <button class="fab-button" onclick="app.navigateTo('add-med')">
+                        <i class="ph ph-plus"></i>
+                    </button>
+                </div>
+                <a href="#" class="nav-item" onclick="app.navigateTo('history')">
+                    <i class="ph ph-clock-counter-clockwise"></i>
+                    <span>History</span>
+                </a>
+                <a href="#" class="nav-item" onclick="app.navigateTo('profile')">
+                    <i class="ph ph-user"></i>
+                    <span>Profile</span>
+                </a>
+            </nav>
+        </section>
+
+        <!-- SCREEN 2: Reminder Alert -->
+        <section id="screen-alert" class="screen">
+            <header class="simple-header">
+                <span class="time">9:41</span>
+                <div class="status-bar">
+                    <i class="ph-fill ph-cell-signal-full"></i>
+                    <i class="ph-fill ph-wifi-high"></i>
+                    <i class="ph-fill ph-battery-full"></i>
+                </div>
+            </header>
+
+            <div class="alert-content">
+                <div class="pill-badge">
+                    <i class="ph-fill ph-pill"></i> MEDICATION REMINDER
+                </div>
+
+                <div class="alert-time">
+                    <i class="ph ph-clock"></i> 9:30 AM • Morning Dose
+                </div>
+
+                <div class="pill-illustration-container pulse large" id="alert-img-container">
+                    <div class="pill-3d detailed" id="alert-pill-css">
+                        <span class="imprint">MED</span>
+                    </div>
+                    <img id="alert-pill-img" src="" alt="Medicine Thumbnail"
+                        style="display: none; width: 140px; height: 140px; border-radius: 50%; object-fit: cover; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                </div>
+
+                <h2 class="alert-title">Time for your medicine</h2>
+                <h1 class="med-title">Medicine Name</h1>
+                <p class="med-subtitle">Dosage</p>
+
+                <div class="med-instructions" id="alert-instructions">
+                    <!-- Dynamic rendering target -->
+                </div>
+            </div>
+
+            <div class="action-buttons bottom-fixed">
+                <button class="btn success large" onclick="app.takeMedicine()">
+                    <i class="ph ph-check"></i> Take Medicine
+                </button>
+                <button class="btn danger outline large" onclick="app.skipMedicine()">
+                    <i class="ph ph-x"></i> Not Taken
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 4: Success Screen -->
+        <section id="screen-success" class="screen">
+            <div class="success-content">
+                <div class="confetti-container" id="confetti"></div>
+
+                <!-- Progress steps at top -->
+                <div class="progress-dots">
+                    <div class="dot active"></div>
+                    <div class="dot active"></div>
+                    <div class="dot active"></div>
+                </div>
+
+                <div class="success-icon slide-up">
+                    <i class="ph-fill ph-check-circle"></i>
+                </div>
+
+                <h1 class="success-title slide-up-delay">Dose confirmed!</h1>
+                <p class="success-desc slide-up-delay">Great job staying on track.</p>
+
+                <div class="streak-badge slide-up-delay">
+                    <i class="ph-fill ph-fire"></i> <span id="success-streak">0-day streak</span> <span>Keep it
+                        up!</span>
+                </div>
+
+                <div class="next-dose-card slide-up-delay-2" id="success-next-dose">
+                    <div class="card-header">
+                        <span class="label">NEXT DOSE</span>
+                        <span class="status scheduled"><i class="ph-fill ph-circle"></i> Scheduled</span>
+                    </div>
+                    <div class="next-med-info">
+                        <div class="icon-bg">
+                            <i class="ph-fill ph-pill"></i>
+                        </div>
+                        <div class="med-details">
+                            <div class="name">Amlodipine</div>
+                            <div class="dosage">500mg • 1 capsule</div>
+                        </div>
+                        <div class="time-block">
+                            <div class="time">02:00</div>
+                            <div class="ampm">PM</div>
+                        </div>
+                    </div>
+                    <div class="countdown">
+                        <i class="ph ph-clock"></i> In approximately <strong>4 hours</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons bottom-fixed slide-up-delay-2">
+                <button class="btn primary large" onclick="app.navigateTo('dashboard')">
+                    Done <i class="ph ph-arrow-right"></i>
+                </button>
+                <a href="#" class="help-link" onclick="app.navigateTo('history')">Want to review today's log? <span>View
+                        history</span></a>
+            </div>
+        </section>
+
+        <!-- SCREEN 5: History Timeline -->
+        <section id="screen-history" class="screen">
+            <header class="nav-header bordered">
+                <button class="icon-button" onclick="app.navigateTo('dashboard')">
+                    <i class="ph ph-arrow-left"></i>
+                </button>
+                <h1>Medication History</h1>
+                <button class="icon-button">
+                    <i class="ph ph-export"></i>
+                </button>
+            </header>
+
+            <div class="history-content">
+                <p class="subtitle text-center" id="history-subtitle">Eleanor's medication log</p>
+
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <span class="stat-num green" id="hist-stat-taken">0</span>
+                        <span class="stat-label">Taken</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-num orange" id="hist-stat-missed">0</span>
+                        <span class="stat-label">Missed</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-num">Today</span>
+                        <span class="stat-label">Overview</span>
+                    </div>
+                </div>
+
+                <div class="history-list">
+                    <!-- Dynamic rendering target -->
+                </div>
+            </div>
+
+            <div class="adherence-footer" style="display: none;">
+                <!-- Hiding old static summary, keeping container layout valid -->
+            </div>
+        </section>
+
+        <!-- SCREEN: Profile -->
+        <section id="screen-profile" class="screen">
+            <header class="nav-header bordered">
+                <button class="icon-button" onclick="app.navigateTo('dashboard')">
+                    <i class="ph ph-arrow-left"></i>
+                </button>
+                <h1>Profile</h1>
+                <div class="flex-spacer"></div>
+            </header>
+
+            <div class="main-content">
+                <div class="profile-header text-center" style="margin-top: 24px; margin-bottom: 32px;">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120&h=120"
+                        alt="Avatar" class="avatar large-avatar">
+                    <h2 id="profile-name" style="margin-top: 12px;">Eleanor Rigby</h2>
+                    <p id="profile-email">+91 9876543210</p>
+                </div>
+
+                <div class="settings-group">
+                    <h3 class="section-title">Personal Settings</h3>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <i class="ph ph-bell"></i>
+                            <span>Push Notifications</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <i class="ph ph-speaker-high"></i>
+                            <span>Reminder Sound</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="setting-sound" checked
+                                onchange="app.toggleSoundSetting(this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-group" style="margin-top: 32px;">
+                    <h3 class="section-title">Statistics</h3>
+                    <div class="stats-row" style="margin-bottom: 0;">
+                        <div class="stat-box">
+                            <span class="stat-num green">92%</span>
+                            <span class="stat-label">Adherence</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-num">45</span>
+                            <span class="stat-label">Total Taken</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-num orange">3</span>
+                            <span class="stat-label">Missed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; margin-bottom: 40px; text-align: center;">
+                    <button class="btn secondary outline large full-width" onclick="app.logout()"
+                        style="justify-content: center; color: var(--danger); border-color: var(--border-color);">
+                        <i class="ph ph-sign-out"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN: Add Medicine -->
+        <section id="screen-add-med" class="screen">
+            <header class="nav-header bordered">
+                <button class="icon-button" onclick="app.navigateTo('dashboard')">
+                    <i class="ph ph-arrow-left"></i>
+                </button>
+                <h1>Add Medicine</h1>
+                <div class="flex-spacer"></div>
+            </header>
+
+            <div class="auth-content">
+                <form id="add-med-form" onsubmit="event.preventDefault()" style="margin-top: 24px;">
+                    <div class="form-group">
+                        <label for="med-name">Medicine Name</label>
+                        <input type="text" id="med-name" class="form-input" placeholder="e.g. Aspirin" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="med-dosage">Dosage</label>
+                        <input type="text" id="med-dosage" class="form-input" placeholder="e.g. 500mg • 1 Tablet"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Time(s)</label>
+                        <div id="med-times-container" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div class="time-input-row" style="display: flex; gap: 8px; align-items: center;">
+                                <input type="time" class="form-input med-time-input" required>
+                                <button type="button" class="btn outline secondary"
+                                    onclick="this.parentElement.remove()"
+                                    style="padding: 10px; border-radius: 50%; min-width: 44px; display: none;"><i
+                                        class="ph ph-x"></i></button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn outline primary-outline" onclick="app.addTimeField()"
+                            style="margin-top: 4px; padding: 10px;">
+                            <i class="ph ph-plus"></i> Add Time
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="med-freq">Frequency</label>
+                        <select id="med-freq" class="form-input custom-select">
+                            <option>Once a day</option>
+                            <option>Twice a day</option>
+                            <option>Three times a day</option>
+                            <option>As needed</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Instructions</label>
+                        <div class="instr-chips-container" id="med-instructions-container">
+                            <label class="instr-chip"><input type="checkbox" name="med-instr"
+                                    value="With water"><span>With water</span></label>
+                            <label class="instr-chip"><input type="checkbox" name="med-instr"
+                                    value="After meal"><span>After meal</span></label>
+                            <label class="instr-chip"><input type="checkbox" name="med-instr"
+                                    value="Before meal"><span>Before meal</span></label>
+                            <label class="instr-chip"><input type="checkbox" name="med-instr"
+                                    value="Empty stomach"><span>Empty stomach</span></label>
+                        </div>
+                        <span class="error-text" id="med-instr-error">Please select at least one instruction</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Days</label>
+                        <div class="days-selector">
+                            <label class="day-chip"><input type="checkbox" name="med-days" value="Mon"
+                                    checked><span>M</span></label>
+                            <label class="day-chip"><input type="checkbox" name="med-days" value="Tue"
+                                    checked><span>T</span></label>
+                            <label class="day-chip"><input type="checkbox" name="med-days" value="Wed"
+                                    checked><span>W</span></label>
+                            <label class="day-chip"><input type="checkbox" name="med-days" value="Thu"
+                                    checked><span>T</span></label>
+                            <label class="day-chip"><input type="checkbox" name="med-days" value="Fri"
+                                    checked><span>F</span></label>
+                            <label class="day-chip"><input type="checkbox" name="med-days" value="Sat"
+                                    checked><span>S</span></label>
+                            <label class="day-chip"><input type="checkbox" name="med-days" value="Sun"
+                                    checked><span>S</span></label>
+                        </div>
+                        <div style="text-align: right; margin-top: 4px;">
+                            <span
+                                style="font-size: 12px; color: var(--primary); font-weight: 600; cursor: pointer; user-select: none;"
+                                onclick="app.selectAllDays()">Select Everyday</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="med-image">Upload Medicine Image</label>
+                        <div class="image-upload-wrapper">
+                            <input type="file" id="med-image" accept="image/*" class="form-input" style="padding: 10px;"
+                                onchange="app.handleImageUpload(event)">
+                            <input type="hidden" id="med-image-base64">
+                        </div>
+                        <span class="error-text" id="med-image-error"
+                            style="color: var(--danger); font-size: 13px; margin-top: 4px; display: none;">Please upload
+                            medicine image</span>
+                        <div id="med-image-preview" style="display: none; margin-top: 12px; text-align: center;">
+                            <img id="med-image-preview-img" src=""
+                                style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color);">
+                        </div>
+                    </div>
+
+                    <div class="action-buttons"
+                        style="display: flex; gap: 16px; margin-top: 32px; margin-bottom: 40px;">
+                        <button type="button" class="btn secondary outline large" onclick="app.navigateTo('dashboard')"
+                            style="flex: 1;">Cancel</button>
+                        <button type="button" class="btn primary large" onclick="app.handleAddMedicine()"
+                            style="flex: 1;">Save</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
